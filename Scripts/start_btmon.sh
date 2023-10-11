@@ -13,5 +13,5 @@ hciconfig hci0 down
 sleep 1
 hciconfig hci0 up
 sleep 1
-RESULT=$(nohup /usr/bin/btmon -T -w ${LOGPATH}/${DATE}_${HN}.bin &>/dev/null&)
+RESULT=$( /usr/bin/btmon -T -w ${LOGPATH}/${DATE}_${HN}.bin &>/dev/null&)
 echo "start_btmon.sh end" >> $ERRORLOG

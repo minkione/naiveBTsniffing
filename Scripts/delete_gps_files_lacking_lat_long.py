@@ -4,7 +4,7 @@ import sys
 def main():
     # Check if the directory path is provided as a command line argument
     if len(sys.argv) < 2:
-        print("Usage: python script.py directory_path")
+        print("Usage: python3 delete_gps_files_lacking_lat_long.py directory_path")
         return
 
     directory_path = sys.argv[1]

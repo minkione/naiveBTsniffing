@@ -66,7 +66,7 @@ Nice to have:
 
 Use the official [Raspbian](https://www.raspberrypi.com/software/) OS, and imaging utilities.
 
-Tested most recently with [2023-05-03-raspios-buster-armhf.img.xz](https://downloads.raspberrypi.org/raspios_oldstable_armhf/images/raspios_oldstable_armhf-2023-05-03/2023-05-03-raspios-buster-armhf.img.xz)
+Tested most recently with [2023-05-03-raspios-buster-armhf.img.xz](https://downloads.raspberrypi.org/raspios_oldstable_armhf/images/raspios_oldstable_armhf-2023-05-03/2023-05-03-raspios-buster-armhf.img.xz). "Buster" is recommended instead of the newer "Bullseye" due to bugs in the GPS software bundled with Bullseye.
 
 # OS Setup & Configuration
 
@@ -111,11 +111,12 @@ If prompted for which user the changes should apply to, select or type pi. Selec
 ```
 sudp apt-get update
 sudo apt-get upgrade -y
-sudo apt-get install -y python3-pip tshark mariadb-server gpsd gpsd-clients
+sudo apt-get install -y python3-pip tshark mariadb-server gpsd gpsd-clients expect
 ```
 Wireshark/tshark/dumpcap will prompt for whether non-super-users should be able to capture packets. Select yes.  
+
 ```
-sudo pip3 install gmplot
+sudo pip3 install gmplot inotify_simple
 ```
 
 ### Test GPS module:
@@ -155,12 +156,46 @@ Ctrl-c to exit gpsmon.
 `gpspipe -V`
 Confirm you are running version 3.17 (newer versions like 3.22 which is bundled with newer Raspbian OSes have known issues that prevent capturing the coordinates in our usage, with the GPS hardware recommended above.)
 
+### Compile custom BlueZ tools (Optional)
+
+I collect GATT data via a modified `gatttool` from the BlueZ tools. I also use the unmodified, but not compiled by default, `sdptool` to collect SDP info. If you want to use this, you will have to compile it on the target system (e.g. Raspberry Pi).
+
+My modified BlueZ-5.66 code is in this repository in the `bluez-5.66` folder. Copy this folder to `~/Downloads/bluez-5.66`.
+
+```
+sudo apt-get install -y libusb-dev libdbus-1-dev libglib2.0-dev libudev-dev libical-dev libreadline-dev autoconf python3-docutils
+
+```
+
+If you are using a Raspberry Pi Zero W, running the recommended Linux distribution above, then you don't need to re-compile the code, as it is already compiled for that platform. If using a different system, proceed.
+
+Then issue:
+
+```
+cd ~/Downloads/bluez-5.66
+./configure --prefix=/usr --mandir=/usr/share/man --sysconfdir=/etc --localstatedir=/var --enable-experimental
+```
+Now you need to edit the Makefile and uncomment every line (and enclosing statement) that has a reference to "gatttool" or "sdptool" on it. (I don't know at the moment how to call ./configure in a way that will include it. If you know, LMK.)  
+
+
+Then, if you have a username other than 'pi', update `~/Downloads/bluez-5.66/attrib/gatttool.c` to correct the path in `static char * g_log_name = "/home/pi/GATTprint.log";`
+
+```
+make -j4
+```
+
+At the end you should confirm it has built the `gatttool` executable file in `~/Downloads/bluez-5.66/attrib/gatttool` and the `sdptool` in `~/Downloads/bluez-5.66/tools/sdptool`.
+
+This will also build a custom `~/Downloads/bluez-5.66/client/bluetoothctl` which has an output format that's parsed by `central_app_launcher2.py`.
+
+
 # Capture Scripts Setup
 
 ### Setup automatic script execution at boot:
 Download the "Scripts" folder from this repository into /home/pi/ home directory.
 
 ```
+cp ~/Scripts/central_app_launcher2.py ~/central_app_launcher2.py
 sudo su
 cd Scripts
 chmod +x *.sh
@@ -204,7 +239,7 @@ create database bt;
 exit
 ```
 
-### delete_gps_files_lacking_lat_long.py
+### delete\_gps\_files\_lacking\_lat\_long.py
 
 Often the GPS log will be continuing to log metadata even when it can't get a GPS coordinate fix. You should periodically deliminate any useless files that have no lat/long coordinates by running the following:
 
@@ -214,7 +249,7 @@ python3 delete_gps_files_lacking_lat_long.py /home/pi/Scripts/logs/gpspipe/
 
 Any files that are deleted will be printed out. No output means no files were deleted.
 
-### dump_names_specific.sh
+### dump\_names\_specific.sh
 
 Assume we have the following files:
 
@@ -240,7 +275,7 @@ from within the Scripts folder.
 
 *Note:* The accepted name format is just the filename, not the full path. 
 
-### map_specific.sh
+### map\_specific.sh
 
 Assume we have the following files:
 
