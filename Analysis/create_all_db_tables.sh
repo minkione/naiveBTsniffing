@@ -1,6 +1,9 @@
 #!/bin/bash
-echo "Creating BT database"
-mysql -u root "CREATE DATABASE foo;"
+
+echo "Initial setup"
+mysql -u root -e "CREATE USER 'user'@'localhost' IDENTIFIED BY 'a'"
+mysql -u root -e "GRANT ALL PRIVILEGES ON *.* TO 'user'@'localhost';"
+mysql -u root -e "create database bt;"
 
 echo "Creating BT Classic tables"
 mysql -u root --database='bt' --execute="CREATE TABLE EIR_bdaddr_to_DevID (id INT NOT NULL AUTO_INCREMENT, device_bdaddr VARCHAR(20) NOT NULL, vendor_id_source INT NOT NULL, vendor_id INT NOT NULL, product_id INT NOT NULL, product_version INT NOT NULL, PRIMARY KEY (id), UNIQUE KEY uni_name (device_bdaddr, vendor_id_source, vendor_id, product_id, product_version));"
@@ -56,7 +59,7 @@ mysql -u root --database='bt' --execute="CREATE TABLE LE_bdaddr_to_URI (id INT N
 
 mysql -u root --database='bt' --execute="CREATE TABLE LE_bdaddr_to_CoD (id INT NOT NULL AUTO_INCREMENT, device_bdaddr VARCHAR(20) NOT NULL, bdaddr_random BOOLEAN NOT NULL, le_evt_type SMALLINT NOT NULL, class_of_device INT NOT NULL, PRIMARY KEY (id), UNIQUE KEY uni_name (device_bdaddr, bdaddr_random, le_evt_type, class_of_device));"
 
-echo "Creating 2thprint tables"
+echo "Creating BLE 2thprint tables"
 mysql -u root --database='bt' --execute="CREATE TABLE BLE2th_LL_VERSION_IND (id INT NOT NULL AUTO_INCREMENT, device_bdaddr_type INT NOT NULL, device_bdaddr CHAR(18) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL, ll_version TINYINT UNSIGNED NOT NULL, device_BT_CID SMALLINT UNSIGNED NOT NULL, ll_sub_version SMALLINT UNSIGNED NOT NULL, PRIMARY KEY (id), UNIQUE KEY uni_name (device_bdaddr_type, device_bdaddr, ll_version, device_BT_CID, ll_sub_version)) CHARACTER SET utf8mb4;"
 
 mysql -u root --database='bt' --execute="CREATE TABLE BLE2th_LL_UNKNOWN_RSP (id INT NOT NULL AUTO_INCREMENT, device_bdaddr_type INT NOT NULL, device_bdaddr CHAR(18) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL, unknown_opcode TINYINT UNSIGNED NOT NULL, PRIMARY KEY (id), UNIQUE KEY uni_name (device_bdaddr_type, device_bdaddr, unknown_opcode)) CHARACTER SET utf8mb4;"
@@ -68,6 +71,13 @@ mysql -u root --database='bt' --execute="CREATE TABLE BLE2th_LL_PHYs (id INT NOT
 mysql -u root --database='bt' --execute="CREATE TABLE BLE2th_LL_PING_RSP (id INT NOT NULL AUTO_INCREMENT, device_bdaddr_type INT NOT NULL, device_bdaddr CHAR(18) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL, ping_rsp BOOLEAN NOT NULL, PRIMARY KEY (id), UNIQUE KEY uni_name (device_bdaddr_type, device_bdaddr, ping_rsp)) CHARACTER SET utf8mb4;"
 
 mysql -u root --database='bt' --execute="CREATE TABLE BLE2th_LL_LENGTHs (id INT NOT NULL AUTO_INCREMENT, device_bdaddr_type INT NOT NULL, device_bdaddr CHAR(18) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL, opcode TINYINT UNSIGNED NOT NULL, max_rx_octets SMALLINT UNSIGNED NOT NULL, max_rx_time SMALLINT UNSIGNED NOT NULL, max_tx_octets SMALLINT UNSIGNED NOT NULL, max_tx_time SMALLINT UNSIGNED NOT NULL, raw_bytes VARCHAR(255), PRIMARY KEY (id), UNIQUE KEY uni_name (device_bdaddr_type, device_bdaddr, opcode, max_rx_octets, max_rx_time, max_tx_octets, max_tx_time, raw_bytes) ) CHARACTER SET utf8mb4;"
+
+echo "Creating BTC 2thprint tables"
+mysql -u root --database='bt' --execute="CREATE TABLE BTC2th_LMP_version_res (id INT NOT NULL AUTO_INCREMENT, device_bdaddr CHAR(18) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL, lmp_version TINYINT UNSIGNED NOT NULL, device_BT_CID SMALLINT UNSIGNED NOT NULL, lmp_sub_version SMALLINT UNSIGNED NOT NULL, PRIMARY KEY (id), UNIQUE KEY uni_name (device_bdaddr, lmp_version, device_BT_CID, lmp_sub_version)) CHARACTER SET utf8mb4;"
+
+mysql -u root --database='bt' --execute="CREATE TABLE BTC2th_LMP_features_res (id INT NOT NULL AUTO_INCREMENT, device_bdaddr CHAR(18) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL, page TINYINT UNSIGNED NOT NULL, features BIGINT UNSIGNED NOT NULL, PRIMARY KEY (id), UNIQUE KEY uni_name (device_bdaddr, page, features)) CHARACTER SET utf8mb4;"
+
+mysql -u root --database='bt' --execute="CREATE TABLE BTC2th_LMP_name_res (id INT NOT NULL AUTO_INCREMENT, device_bdaddr CHAR(18) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL, device_name VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL, PRIMARY KEY (id), UNIQUE KEY uni_name (device_bdaddr, device_name)) CHARACTER SET utf8mb4;"
 
 echo "Creating other helper tables"
 #TODO: Not known yet which ones are depended upon

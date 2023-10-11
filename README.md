@@ -333,7 +333,7 @@ Eventually once you have many files to process in bulk, you will want to pass ea
 
 `cd ~/naiveBTsniffing/Analysis`
 
-You will need Python3 installed, and you may need to change the path to the python3 interpreter at the beginning of the file. You will need to do `pip3 install mysql` if you have not already.
+You will need Python3 installed, and you may need to change the path to the python3 interpreter at the beginning of the file. You will need to do `pip3 install mysql-connector-python`, `pip3 install pyyaml` if you have not already.
 
 
 
