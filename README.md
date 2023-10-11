@@ -230,14 +230,6 @@ If you want to manually restart the collection without a reboot, you can run: `s
 
 After you have sniffed some traffic, you will have files in /home/pi/Scripts/logs/btmon/ and /home/pi/Scripts/logs/gpspipe/, that should be named the same as each other (timestamp followed by hostname) except that GPS files end in .txt and btmon in .bin.
 
-### One time setup
-
-```
-sudo su
-mysql
-create database bt;
-exit
-```
 
 ### delete\_gps\_files\_lacking\_lat\_long.py
 
@@ -284,7 +276,7 @@ pi@pi0-2:~/Scripts $ ls logs/gpspipe/
 2023-08-24-01-04-59_pi0-2.txt  2023-08-24-01-11-38_pi0-2.txt
 ```
 
-If you have a file like `/home/pi/Scripts/logs/gpspipe/2023-08-24-01-11-38_pi0-2.txt` for instance, you can map the instances of *named* bluetooth 
+If you have a file like `/home/pi/Scripts/logs/gpspipe/2023-08-24-01-11-38_pi0-2.txt` for instance, you can map the instances of *named* bluetooth devices. 
 
 ```
 root@pi0-2:/home/pi/Scripts# ./map_specific.sh 2023-08-24-01-04-59_pi0-2 2023-08-24-01-11-38_pi0-2
@@ -305,4 +297,43 @@ The file bt_map.html can be opened in a browser to see the GPS locations of name
 
 *Note:* The accepted name format is just the filename, not the full path. You must remove the filetype suffix like ".txt" or ".bin".
 
-TO BE CONTINUED!
+## Import data into MySQL
+
+### One time setup
+
+**Linux Software Setup**: You should already have the necessary MySQL (MariaDB) database and tshark tools installed from the above apt-get commands.
+
+**macOS Software Setup**: You can load the data into the database and perform analysis on macOS, but you must first [install HomeBrew](https://brew.sh/), and then run `brew install mysql` and `brew install wireshark` (for the `tshark` CLI version). (If for some reason neither tshark nor wireshark are found in your PATH, look in / add from /usr/local/Cellar/wireshark/). Then also edit `/usr/local/etc/my.cnf` and add `secure_file_priv = /tmp` at the end of the file, and then start the mysql server with `/usr/local/opt/mysql/bin/mysqld_safe --datadir=/usr/local/var/mysql`.
+
+**Create initial database & tables**:
+
+Run `./Analysis/create_all_db_tables.sh.` from this repository to create the "bt" database and all the necessary tables.
+
+**Import the IEEE OUIs into the database**:
+
+Run `./Analysis/process_OUI_lists.sh ./Analysis/oui.txt`
+
+The oui.txt is from [https://standards-oui.ieee.org/oui/oui.txt](https://standards-oui.ieee.org/oui/oui.txt), and should be periodically updated. Also note that the `process_OUI_lists.sh` script does not currently handle OUI assignments that are less than 24 bits.
+
+### Importing data from btmon .bin files
+
+`cd ~/naiveBTsniffing/Analysis`
+
+Run `./fill_ALL_from_HCI_log.sh btmon_file.bin`.
+
+E.g. `./fill_ALL_from_HCI_log.sh ../ExampleData/2023-10-06-08-52-20_up-apl01.bin`
+
+You should see a variety of outputs such as "tsharking", and "mysql import". You can safely ignore any tshark warnings about the file being "cut short in the middle of a packet".
+
+Eventually once you have many files to process in bulk, you will want to pass each file to `fill_ALL_from_HCI_log.sh` sequentially. For that you can issue a command like:
+
+`time find /path/to/btmon_logs/2023-10* -type f -name "*.bin" | xargs -n 1 -I {} bash -c " ./fill_ALL_from_HCI_log.sh {}"`
+
+### Investigating data with TellMeEverything.py
+
+`cd ~/naiveBTsniffing/Analysis`
+
+You will need Python3 installed, and you may need to change the path to the python3 interpreter at the beginning of the file. You will need to do `pip3 install mysql` if you have not already.
+
+
+
