@@ -311,9 +311,17 @@ Run `./Analysis/create_all_db_tables.sh.` from this repository to create the "bt
 
 **Import the IEEE OUIs into the database**:
 
-Run `./Analysis/process_OUI_lists.sh ./Analysis/oui.txt`
+`cd ~/naiveBTsniffing/Analysis`
+
+Run `./process_OUI_lists.sh ./oui.txt`
 
 The oui.txt is from [https://standards-oui.ieee.org/oui/oui.txt](https://standards-oui.ieee.org/oui/oui.txt), and should be periodically updated. Also note that the `process_OUI_lists.sh` script does not currently handle OUI assignments that are less than 24 bits.
+
+**Import BT companies into the database**:
+
+`cd ~/naiveBTsniffing/Analysis`
+
+Run `./translator_fill_UUID16_to_company.sh`
 
 ### Importing data from btmon .bin files
 
@@ -333,7 +341,30 @@ Eventually once you have many files to process in bulk, you will want to pass ea
 
 `cd ~/naiveBTsniffing/Analysis`
 
-You will need Python3 installed, and you may need to change the path to the python3 interpreter at the beginning of the file. You will need to do `pip3 install mysql-connector-python`, `pip3 install pyyaml` if you have not already.
+You will need Python3 installed, and you may need to change the path to the python3 interpreter at the beginning of the file. You will also need to do `pip3 install mysql-connector-python`, `pip3 install pyyaml` if you have not already.
 
+Issue `./TellMeEverything.py --help` for the latest usage.
 
+**Printing information for a specific BDADDR**:
 
+`./TellMeEverything.py --bdaddr 4c:e6:c0:21:39:a6`
+
+**Printing information for BDADDRs that have a name that matches a given regex**:
+
+`./TellMeEverything.py --nameregex "^Flipper"`
+
+The regex is used as a MySQL "REGEXP" statement, and thus must be valid MySQL regex syntax.
+
+**Printing information for BDADDRs that have some data element that is associated with a company name that matches a given regex**:
+
+`./TellMeEverything.py --nameregex "^Qualcomm"`
+
+The regex is checked against associations with the BDADDR IEEE OUI, UUID16s, and BT/BLE CompanyID fields from link layer version information.
+
+**Printing information for BDADDRs that have a UUID128 that matches a given regex**:
+
+`./TellMeEverything.py --UUID128regex "02030302"`
+
+**Printing information for BDADDRs that have Manufacturer Specific Data that matches a given regex**:
+
+`./TellMeEverything.py --MSDregex "008fc3d5"`

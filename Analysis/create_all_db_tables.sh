@@ -59,6 +59,15 @@ mysql -u root --database='bt' --execute="CREATE TABLE LE_bdaddr_to_URI (id INT N
 
 mysql -u root --database='bt' --execute="CREATE TABLE LE_bdaddr_to_CoD (id INT NOT NULL AUTO_INCREMENT, device_bdaddr VARCHAR(20) NOT NULL, bdaddr_random BOOLEAN NOT NULL, le_evt_type SMALLINT NOT NULL, class_of_device INT NOT NULL, PRIMARY KEY (id), UNIQUE KEY uni_name (device_bdaddr, bdaddr_random, le_evt_type, class_of_device));"
 
+echo "Creating GATT tables"
+mysql -u root --database='bt' --execute="CREATE TABLE GATT_services (id INT NOT NULL AUTO_INCREMENT, device_bdaddr_type INT NOT NULL, device_bdaddr CHAR(18) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL, begin_handle SMALLINT UNSIGNED NOT NULL, end_handle SMALLINT UNSIGNED NOT NULL, UUID128 CHAR(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL, PRIMARY KEY (id), UNIQUE KEY uni_name (device_bdaddr_type, device_bdaddr, begin_handle, end_handle, UUID128)) CHARACTER SET utf8mb4;"
+
+mysql -u root --database='bt' --execute="CREATE TABLE GATT_descriptors (id INT NOT NULL AUTO_INCREMENT, device_bdaddr_type INT NOT NULL, device_bdaddr CHAR(18) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL, descriptor_handle SMALLINT UNSIGNED NOT NULL, UUID128 CHAR(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL, PRIMARY KEY (id), UNIQUE KEY uni_name (device_bdaddr_type, device_bdaddr, descriptor_handle, UUID128)) CHARACTER SET utf8mb4;"
+
+mysql -u root --database='bt' --execute="CREATE TABLE GATT_characteristics (id INT NOT NULL AUTO_INCREMENT, device_bdaddr_type INT NOT NULL, device_bdaddr CHAR(18) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL, declaration_handle SMALLINT UNSIGNED NOT NULL, char_properties TINYINT UNSIGNED NOT NULL, char_value_handle SMALLINT UNSIGNED NOT NULL, char_UUID128 CHAR(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL, PRIMARY KEY (id), UNIQUE KEY uni_name (device_bdaddr_type, device_bdaddr, declaration_handle, char_properties, char_value_handle, char_UUID128)) CHARACTER SET utf8mb4;"
+
+mysql -u root --database='bt' --execute="CREATE TABLE GATT_characteristics_values (id INT NOT NULL AUTO_INCREMENT, device_bdaddr_type INT NOT NULL, device_bdaddr CHAR(18) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL, read_handle SMALLINT UNSIGNED NOT NULL,  byte_values BLOB  NOT NULL, PRIMARY KEY (id), UNIQUE KEY uni_name (device_bdaddr_type, device_bdaddr, read_handle, byte_values(1024))) CHARACTER SET utf8mb4;"
+
 echo "Creating BLE 2thprint tables"
 mysql -u root --database='bt' --execute="CREATE TABLE BLE2th_LL_VERSION_IND (id INT NOT NULL AUTO_INCREMENT, device_bdaddr_type INT NOT NULL, device_bdaddr CHAR(18) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL, ll_version TINYINT UNSIGNED NOT NULL, device_BT_CID SMALLINT UNSIGNED NOT NULL, ll_sub_version SMALLINT UNSIGNED NOT NULL, PRIMARY KEY (id), UNIQUE KEY uni_name (device_bdaddr_type, device_bdaddr, ll_version, device_BT_CID, ll_sub_version)) CHARACTER SET utf8mb4;"
 
