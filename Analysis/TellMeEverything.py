@@ -1113,7 +1113,7 @@ def print_uuid128s(device_bdaddr):
             uuid128 = uuid128.strip().lower()
             dashing_uuid128 = f"{uuid128[:8]}-{uuid128[8:12]}-{uuid128[12:16]}-{uuid128[16:20]}-{uuid128[20:32]}"
             print(f"\t\tUUID128 {dashing_uuid128} ({get_custom_uuid128_string(uuid128)})")
-        print("\t\t\tFound in BT LE data (LE_bdaddr_to_UUID128s), bdaddr_random = {random} ({get_bdaddr_type(bdaddr, random)})")
+        print(f"\t\t\tFound in BT LE data (LE_bdaddr_to_UUID128s), bdaddr_random = {bdaddr_random} ({get_bdaddr_type(device_bdaddr, bdaddr_random)})")
         print(f"\t\t\tThis was found in an event of type {le_evt_type} which corresponds to {get_le_event_type_string(le_evt_type)}")
 
     if(len(eir_UUID128s_result) == 0 and len(le_UUID128s_result) == 0):
